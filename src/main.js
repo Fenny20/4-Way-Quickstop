@@ -75,6 +75,23 @@ function renderFoodItems(foodItems, filterCategory = 'all', searchQuery = '') {
     
     renderedCount++;
 
+    let priceHtml = `<span class="font-extrabold text-3xl text-orange-600">${item.price}</span>`;
+    
+    if (item.options && item.options.length > 0) {
+      let optionsHtml = item.options.map(opt => `<option value="${opt.price}">${opt.name}</option>`).join('');
+      priceHtml = `
+        <div class="flex items-center gap-3">
+          <select 
+            onchange="document.getElementById('price-${index}').innerText = this.value"
+            class="bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-1 text-sm font-semibold focus:ring-2 focus:ring-orange-500 outline-none cursor-pointer"
+          >
+            ${optionsHtml}
+          </select>
+          <span id="price-${index}" class="font-extrabold text-3xl text-orange-600">${item.options[0].price}</span>
+        </div>
+      `;
+    }
+
     const imgSrc = item.imageUrl ? item.imageUrl : images[index % images.length];
     const cardHtml = `
       <div class="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-lg border border-slate-100 dark:border-slate-700 flex flex-col transition-all transform hover:-translate-y-2 hover:shadow-2xl animate-fade-in-up" style="animation-delay: ${renderedCount * 0.05}s">
@@ -85,7 +102,7 @@ function renderFoodItems(foodItems, filterCategory = 'all', searchQuery = '') {
           <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">${item.title}</h3>
           <p class="text-slate-600 dark:text-slate-300 mb-6 flex-grow leading-relaxed">${item.desc}</p>
           <div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center">
-            <span class="font-extrabold text-3xl text-orange-600">${item.price}</span>
+            ${priceHtml}
           </div>
         </div>
       </div>
@@ -103,6 +120,25 @@ function setupFoodFilters() {
   const filterContainer = document.getElementById('food-filters');
   
   if (!searchInput || !filterContainer) return;
+  
+  // Dynamically generate filter buttons
+  const items = window.latestFoodItems || [];
+  const categories = new Set();
+  items.forEach(item => {
+    if (item.category && item.category !== 'all') {
+      categories.add(item.category);
+    }
+  });
+
+  // Rebuild container
+  let buttonsHtml = `<button data-filter="all" class="px-6 py-2 rounded-full text-sm font-bold bg-orange-600 text-white shadow-md transition-all">All Items</button>`;
+  
+  Array.from(categories).sort().forEach(cat => {
+    const formattedCat = cat.charAt(0).toUpperCase() + cat.slice(1);
+    buttonsHtml += `<button data-filter="${cat}" class="px-6 py-2 rounded-full text-sm font-bold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-orange-500 hover:text-orange-500 transition-all">${formattedCat}</button>`;
+  });
+  
+  filterContainer.innerHTML = buttonsHtml;
   
   window.currentFoodCategory = 'all';
   window.currentFoodQuery = '';

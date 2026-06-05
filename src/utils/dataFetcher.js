@@ -39,7 +39,7 @@ function parseCSVLine(line) {
     }
   }
   result.push(current);
-  return result.map((s) => s.trim().replace(/^"|"$/g, ''));
+  return result.map(s => s.trim().replace(/^"+|"+$/g, ''));
 }
 
 export async function fetchFoodData() {
@@ -161,17 +161,39 @@ export async function fetchFoodData() {
       const desc = String(parts[descIdx] ?? '').trim();
       let price = String(parts[priceIdx] ?? '').trim();
       
-      const imageUrl = parts.length > 3 && parts[3].trim() ? parts[3].trim() : null;
+      let imageUrl = parts.length > 3 && parts[3].trim() ? parts[3].trim() : null;
       const category = parts.length > 4 && parts[4].trim() ? parts[4].trim().toLowerCase() : 'all';
 
       if (!title) continue;
 
       const nTitle = title.toLowerCase();
       if (nTitle === 'title' || nTitle === 'food title' || nTitle === 'name') continue;
+
+      let options = null;
+      if (price && price.includes('|') && price.includes(':')) {
+        options = price.split('|').map(opt => {
+          const optParts = opt.split(':');
+          let optPrice = optParts[1] ? optParts[1].trim() : '';
+          if (optPrice && !optPrice.startsWith('$')) optPrice = '$' + optPrice;
+          return { name: optParts[0].trim(), price: optPrice };
+        });
+        price = options[0].price;
+      } else if (price && !price.startsWith('$')) {
+        price = '$' + price;
+      }
       
-      if (price && !price.startsWith('$')) price = '$' + price;
+      if (imageUrl && imageUrl.includes('imgurl=')) {
+        try {
+          const urlParams = new URLSearchParams(imageUrl.split('?')[1]);
+          if (urlParams.has('imgurl')) {
+            imageUrl = decodeURIComponent(urlParams.get('imgurl'));
+          }
+        } catch (e) {
+          // ignore parsing error
+        }
+      }
       
-      foodItems.push({ title, desc, price, imageUrl, category });
+      foodItems.push({ title, desc, price, imageUrl, category, options });
     }
     
     return foodItems.length > 0 ? foodItems : fallbackFood;
@@ -211,15 +233,38 @@ export async function fetchDealsData() {
       
       const title = parts[0];
       const desc = parts[1];
-      let originalPrice = parts[2];
-      let price = parts[3];
-      const imageUrl = parts.length > 4 && parts[4].trim() ? parts[4].trim() : null;
+      let originalPrice = '';
+      let price = '';
+      let imageUrl = null;
+      
+      // If user provided 4 columns: Title, Desc, Deal Price, Image URL
+      if (parts.length === 4) {
+        price = parts[2];
+        imageUrl = parts[3].trim() ? parts[3].trim() : null;
+      } else {
+        // If user provided 5 columns: Title, Desc, Original Price, Deal Price, Image URL
+        originalPrice = parts[2];
+        price = parts[3];
+        imageUrl = parts.length > 4 && parts[4].trim() ? parts[4].trim() : null;
+      }
       
       if (title.toLowerCase() === 'title' || title === '') continue;
       
       if (price.toLowerCase() !== 'free' && !price.startsWith('$')) price = '$' + price;
       if (originalPrice && originalPrice.toLowerCase() !== 'free' && !originalPrice.startsWith('$')) originalPrice = '$' + originalPrice;
       
+      // Strip any search query stuff from the image URL to try to get the raw image if they copy-pasted a google/yahoo search result
+      if (imageUrl && imageUrl.includes('imgurl=')) {
+        try {
+          const urlParams = new URLSearchParams(imageUrl.split('?')[1]);
+          if (urlParams.has('imgurl')) {
+            imageUrl = decodeURIComponent(urlParams.get('imgurl'));
+          }
+        } catch (e) {
+          // ignore parsing error
+        }
+      }
+
       deals.push({ title, desc, originalPrice, price, imageUrl });
     }
     
