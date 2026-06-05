@@ -13,7 +13,8 @@ export default defineConfig({
         fuel: resolve(__dirname, 'pages/fuel.html'),
         store: resolve(__dirname, 'pages/store.html'),
         food: resolve(__dirname, 'pages/food.html'),
-        location: resolve(__dirname, 'pages/location.html')
+        location: resolve(__dirname, 'pages/location.html'),
+        deals: resolve(__dirname, 'pages/deals.html')
       }
     }
   }

@@ -58,19 +58,28 @@ function setupActionButtons(data) {
 }
 
 // Food items section rendering
-function renderFoodItems(foodItems) {
+function renderFoodItems(foodItems, filterCategory = 'all', searchQuery = '') {
   const foodContainer = document.getElementById('food-container');
   if (!foodContainer) return;
 
   const images = ['/images/sandwich.png', '/images/tenders.png', '/images/burger.png'];
   foodContainer.innerHTML = '';
+  
+  const query = searchQuery.toLowerCase();
 
+  let renderedCount = 0;
   foodItems.forEach((item, index) => {
-    const imgSrc = images[index % images.length];
+    // Apply filters
+    if (filterCategory !== 'all' && item.category !== filterCategory) return;
+    if (query && !item.title.toLowerCase().includes(query) && !item.desc.toLowerCase().includes(query)) return;
+    
+    renderedCount++;
+
+    const imgSrc = item.imageUrl ? item.imageUrl : images[index % images.length];
     const cardHtml = `
-      <div class="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-lg border border-slate-100 dark:border-slate-700 flex flex-col transition-all transform hover:-translate-y-2 hover:shadow-2xl animate-fade-in-up" style="animation-delay: ${index * 0.1}s">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-lg border border-slate-100 dark:border-slate-700 flex flex-col transition-all transform hover:-translate-y-2 hover:shadow-2xl animate-fade-in-up" style="animation-delay: ${renderedCount * 0.05}s">
         <div class="h-56 overflow-hidden relative">
-          <img src="${imgSrc}" alt="${item.title}" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110" />
+          <img src="${imgSrc}" alt="${item.title}" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110" onerror="this.src='/images/burger.png'" />
         </div>
         <div class="p-6 flex-grow flex flex-col">
           <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">${item.title}</h3>
@@ -82,6 +91,42 @@ function renderFoodItems(foodItems) {
       </div>
     `;
     foodContainer.insertAdjacentHTML('beforeend', cardHtml);
+  });
+  
+  if (renderedCount === 0) {
+    foodContainer.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 dark:text-slate-400 text-lg">No items found matching your search.</div>`;
+  }
+}
+
+function setupFoodFilters(foodItems) {
+  const searchInput = document.getElementById('food-search');
+  const filterContainer = document.getElementById('food-filters');
+  
+  if (!searchInput || !filterContainer) return;
+  
+  let currentCategory = 'all';
+  let currentQuery = '';
+  
+  // Search Input listener
+  searchInput.addEventListener('input', (e) => {
+    currentQuery = e.target.value;
+    renderFoodItems(foodItems, currentCategory, currentQuery);
+  });
+  
+  // Category Buttons listener
+  filterContainer.addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON') {
+      const btn = e.target;
+      currentCategory = btn.getAttribute('data-filter') || 'all';
+      
+      // Update active button styling
+      filterContainer.querySelectorAll('button').forEach(b => {
+        b.className = 'px-6 py-2 rounded-full text-sm font-bold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-orange-500 hover:text-orange-500 transition-all';
+      });
+      btn.className = 'px-6 py-2 rounded-full text-sm font-bold bg-orange-600 text-white shadow-md transition-all';
+      
+      renderFoodItems(foodItems, currentCategory, currentQuery);
+    }
   });
 }
 
@@ -166,6 +211,7 @@ async function initApp() {
       console.log('[Main] Food items fetched:', foodItems);
       // Replace the rendered list entirely to avoid showing stale DOM/cards.
       renderFoodItems(foodItems);
+      setupFoodFilters(foodItems);
       // Extra safety: clear any previous cached reference.
       window.__foodItems = foodItems;
 
@@ -176,10 +222,56 @@ async function initApp() {
     console.error('[Main] Food data load threw an error (should have fallback inside fetchFoodData):', e);
   }
 
+  // Deals page
+  try {
+    const dealsContainer = document.getElementById('deals-container');
+    if (dealsContainer) {
+      // Lazy load fetchDealsData only if we are on deals page to prevent undefined errors if not exported yet
+      import('./utils/dataFetcher.js').then(async (mod) => {
+        if (mod.fetchDealsData) {
+          console.log('[Main] Fetching Deals data...');
+          const deals = await mod.fetchDealsData();
+          renderDealsItems(deals);
+        }
+      });
+    }
+  } catch(e) {
+    console.error('[Main] Deals data load threw an error:', e);
+  }
+
   // Weather widget (home page)
   fetchWeather();
 
   console.log('[Main] Application initialization complete');
+}
+
+function renderDealsItems(deals) {
+  const container = document.getElementById('deals-container');
+  if (!container) return;
+  container.innerHTML = '';
+  
+  deals.forEach((deal, index) => {
+    const imgSrc = deal.imageUrl || '/images/tenders.png'; // Fallback
+    const cardHtml = `
+      <div class="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-lg border border-slate-100 dark:border-slate-700 flex flex-col transition-all transform hover:-translate-y-2 hover:shadow-2xl animate-fade-in-up" style="animation-delay: ${index * 0.1}s">
+        <div class="h-56 overflow-hidden relative group">
+          <img src="${imgSrc}" alt="${deal.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" onerror="this.src='/images/sandwich.png'" />
+          <div class="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-full font-bold shadow-md animate-pulse">HOT DEAL</div>
+        </div>
+        <div class="p-6 flex-grow flex flex-col">
+          <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">${deal.title}</h3>
+          <p class="text-slate-600 dark:text-slate-300 mb-6 flex-grow leading-relaxed">${deal.desc}</p>
+          <div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center">
+            <div>
+              <span class="text-sm text-slate-400 line-through mr-2">${deal.originalPrice}</span>
+              <span class="font-extrabold text-3xl text-orange-600">${deal.price}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    container.insertAdjacentHTML('beforeend', cardHtml);
+  });
 }
 
 document.addEventListener('DOMContentLoaded', initApp);

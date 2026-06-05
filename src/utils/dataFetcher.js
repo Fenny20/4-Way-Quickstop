@@ -159,30 +159,74 @@ export async function fetchFoodData() {
 
       const title = String(parts[titleIdx] ?? '').trim();
       const desc = String(parts[descIdx] ?? '').trim();
-      const rawPrice = parts[priceIdx];
+      let price = String(parts[priceIdx] ?? '').trim();
+      
+      const imageUrl = parts.length > 3 && parts[3].trim() ? parts[3].trim() : null;
+      const category = parts.length > 4 && parts[4].trim() ? parts[4].trim().toLowerCase() : 'all';
 
       if (!title) continue;
 
       const nTitle = title.toLowerCase();
       if (nTitle === 'title' || nTitle === 'food title' || nTitle === 'name') continue;
-
-      const price = coercePrice(rawPrice);
-      if (!price) continue;
-
-      if (!desc && parts.length <= Math.max(titleIdx, descIdx, priceIdx)) continue;
-
-      foodItems.push({ title, desc, price });
-
-      if (foodItems.length <= 10) {
-        console.log(`[FetchFoodData] Row ${i} =>`, { title, desc, price });
-      }
+      
+      if (price && !price.startsWith('$')) price = '$' + price;
+      
+      foodItems.push({ title, desc, price, imageUrl, category });
     }
-
-    console.log(`[FetchFoodData] Parsed ${foodItems.length} food items.`);
+    
     return foodItems.length > 0 ? foodItems : fallbackFood;
   } catch (error) {
     console.warn('Error fetching Food Google Sheet. Falling back to local data.', error);
     return fallbackFood;
+  }
+}
+
+// Paste the published CSV link for your Deals sheet here:
+export const GOOGLE_SHEET_DEALS_CSV_URL = '';
+
+export async function fetchDealsData() {
+  const fallbackDeals = [
+    { title: "2 for $3 Roller Grill", desc: "Mix and match any two roller grill items. Includes hot dogs, taquitos, and sausages.", price: "$3.00", originalPrice: "$4.50", imageUrl: null },
+    { title: "Free Coffee with Fill Up", desc: "Get a free medium coffee with any fuel purchase of 10 gallons or more.", price: "FREE", originalPrice: "$1.99", imageUrl: null }
+  ];
+
+  if (!GOOGLE_SHEET_DEALS_CSV_URL) return fallbackDeals;
+
+  try {
+    const timestamp = new Date().getTime();
+    const fetchUrl = `${GOOGLE_SHEET_DEALS_CSV_URL}&t=${timestamp}`;
+    const response = await fetch(fetchUrl, { cache: 'no-store' });
+    if (!response.ok) throw new Error('Failed to fetch Deals Google Sheet');
+    
+    const csvText = await response.text();
+    const rows = csvText.split('\n');
+    const deals = [];
+    
+    for (let i = 0; i < rows.length; i++) {
+      const rowStr = rows[i].trim();
+      if (!rowStr) continue;
+      
+      const parts = parseCSVLine(rowStr);
+      if (parts.length < 4) continue;
+      
+      const title = parts[0];
+      const desc = parts[1];
+      let originalPrice = parts[2];
+      let price = parts[3];
+      const imageUrl = parts.length > 4 && parts[4].trim() ? parts[4].trim() : null;
+      
+      if (title.toLowerCase() === 'title' || title === '') continue;
+      
+      if (price.toLowerCase() !== 'free' && !price.startsWith('$')) price = '$' + price;
+      if (originalPrice && originalPrice.toLowerCase() !== 'free' && !originalPrice.startsWith('$')) originalPrice = '$' + originalPrice;
+      
+      deals.push({ title, desc, originalPrice, price, imageUrl });
+    }
+    
+    return deals.length > 0 ? deals : fallbackDeals;
+  } catch (error) {
+    console.warn('Error fetching Deals Google Sheet.', error);
+    return fallbackDeals;
   }
 }
 
