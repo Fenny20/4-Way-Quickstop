@@ -9,7 +9,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-  </head>
+  
+    <!-- SEO & PWA -->
+    <meta name="description" content="4-Way Quick Stop - Your express roadside stop for fuel, food, snacks, and great deals in Joppa, AL.">
+    <meta property="og:title" content="4-Way Quick Stop">
+    <meta property="og:description" content="Your express roadside stop for fuel, food, snacks, and great deals in Joppa, AL.">
+    <meta property="og:type" content="website">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#f97316">
+</head>
   <body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white dark:text-slate-100 font-sans antialiased transition-colors duration-300 pb-16 md:pb-0">
 
     <!-- Announcement Bar (Hidden by default) -->
@@ -59,6 +67,36 @@
         </div>
         
         <div id="deals-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="animate-pulse bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-lg border border-slate-100 dark:border-slate-700 flex flex-col h-96">
+            <div class="h-56 bg-slate-200 dark:bg-slate-700"></div>
+            <div class="p-6 flex-grow flex flex-col">
+              <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded w-3/4 mb-4"></div>
+              <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full mb-2"></div>
+              <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-5/6 mb-6"></div>
+              <div class="mt-auto h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/4"></div>
+            </div>
+          </div>
+
+          <div class="animate-pulse bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-lg border border-slate-100 dark:border-slate-700 flex flex-col h-96">
+            <div class="h-56 bg-slate-200 dark:bg-slate-700"></div>
+            <div class="p-6 flex-grow flex flex-col">
+              <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded w-3/4 mb-4"></div>
+              <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full mb-2"></div>
+              <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-5/6 mb-6"></div>
+              <div class="mt-auto h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/4"></div>
+            </div>
+          </div>
+
+          <div class="animate-pulse bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-lg border border-slate-100 dark:border-slate-700 flex flex-col h-96">
+            <div class="h-56 bg-slate-200 dark:bg-slate-700"></div>
+            <div class="p-6 flex-grow flex flex-col">
+              <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded w-3/4 mb-4"></div>
+              <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full mb-2"></div>
+              <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-5/6 mb-6"></div>
+              <div class="mt-auto h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/4"></div>
+            </div>
+          </div>
+
           <!-- Deal cards injected dynamically here -->
         </div>
       </div>

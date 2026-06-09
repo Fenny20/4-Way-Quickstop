@@ -8,7 +8,58 @@ const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR
 export const GOOGLE_SHEET_FOOD_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTGO64k_feo47mC1u-Tp94ZTnvZAjJZQTE69uNZQVc1M7Vs8oNYWe0wpc8BCx6nDZ2fcgP_EtCRVu2B/pub?output=csv';
 
 // Paste the published CSV link for your new Store Products sheet here:
-export const GOOGLE_SHEET_STORE_PRODUCTS_CSV_URL = '';
+export const GOOGLE_SHEET_STORE_PRODUCTS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT5ICT3y31gFBS7lEuDkDd33PEsaZqmYXr_8FSG2jSc-8DE0V6mpzfBOEbCKPgjCDnDneKhadYjmPz5/pub?output=csv';
+
+export function escapeHTML(str) {
+  if (typeof str !== 'string') return str;
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+export async function fetchWithCache(url, cacheKey, ttlMs = 300000) {
+  const cached = localStorage.getItem(cacheKey);
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      if (Date.now() - parsed.timestamp < ttlMs) {
+        console.log(`[Cache] Using cached data for ${cacheKey}`);
+        return parsed.data;
+      }
+    } catch (e) {
+      console.warn('Cache parsing failed', e);
+    }
+  }
+
+  console.log(`[Cache] Fetching fresh data for ${cacheKey}`);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  
+  try {
+    const response = await fetch(`${url}&t=${Date.now()}`, { cache: 'no-store', signal: controller.signal });
+    clearTimeout(timeout);
+    
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    
+    const text = await response.text();
+    localStorage.setItem(cacheKey, JSON.stringify({
+      timestamp: Date.now(),
+      data: text
+    }));
+    
+    return text;
+  } catch (err) {
+    clearTimeout(timeout);
+    if (cached) {
+      console.log(`[Cache] Network failed, falling back to expired cache for ${cacheKey}`);
+      try { return JSON.parse(cached).data; } catch(e) {}
+    }
+    throw err;
+  }
+}
 
 function parseCSVLine(line) {
   const result = [];
@@ -87,37 +138,11 @@ export async function fetchFoodData() {
   };
 
   try {
-    const timestamp = new Date().getTime();
-    const fetchUrl = `${GOOGLE_SHEET_FOOD_CSV_URL}&t=${timestamp}`;
-    console.log('[FetchFoodData] Fetching from:', fetchUrl);
-
-    // Some environments/users see intermittent failures from Google Sheets.
-    // Add a short timeout + one retry to make fetch more reliable.
-    const fetchWithTimeout = async (url, { timeoutMs = 8000 } = {}) => {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), timeoutMs);
-      try {
-        return await fetch(url, { cache: 'no-store', signal: controller.signal });
-      } finally {
-        clearTimeout(timeout);
-      }
-    };
-
-    let response;
+    let csvText;
     try {
-      response = await fetchWithTimeout(fetchUrl, { timeoutMs: 8000 });
+      csvText = await fetchWithCache(GOOGLE_SHEET_FOOD_CSV_URL, 'food_data_cache');
     } catch (err) {
-      console.warn('[FetchFoodData] First fetch attempt failed, retrying once...', err);
-      response = await fetchWithTimeout(fetchUrl, { timeoutMs: 8000 });
-    }
-
-    if (!response.ok) throw new Error('Failed to fetch Food Google Sheet');
-
-    const contentType = response.headers.get('content-type') || '';
-    const csvText = await response.text();
-
-    if (contentType.includes('text/html') || csvText.trim().startsWith('<')) {
-      throw new Error(`Food Google Sheet did not return CSV (content-type: ${contentType})`);
+      throw new Error(`Failed to fetch Food Google Sheet: ${err.message}`);
     }
 
     const lines = csvText.split(/\r?\n/);
@@ -160,12 +185,12 @@ export async function fetchFoodData() {
       const parts = parseCSVLine(nonEmptyLines[i]);
       if (!parts || parts.length === 0) continue;
 
-      const title = String(parts[titleIdx] ?? '').trim();
-      const desc = String(parts[descIdx] ?? '').trim();
-      let price = String(parts[priceIdx] ?? '').trim();
+      const title = escapeHTML(String(parts[titleIdx] ?? '').trim());
+      const desc = escapeHTML(String(parts[descIdx] ?? '').trim());
+      let price = escapeHTML(String(parts[priceIdx] ?? '').trim());
       
       let imageUrl = parts.length > 3 && parts[3].trim() ? parts[3].trim() : null;
-      const category = parts.length > 4 && parts[4].trim() ? parts[4].trim().toLowerCase() : 'all';
+      const category = parts.length > 4 && parts[4].trim() ? escapeHTML(parts[4].trim().toLowerCase()) : 'all';
 
       if (!title) continue;
 
@@ -218,12 +243,12 @@ export async function fetchDealsData() {
   if (!GOOGLE_SHEET_DEALS_CSV_URL) return fallbackDeals;
 
   try {
-    const timestamp = new Date().getTime();
-    const fetchUrl = `${GOOGLE_SHEET_DEALS_CSV_URL}&t=${timestamp}`;
-    const response = await fetch(fetchUrl, { cache: 'no-store' });
-    if (!response.ok) throw new Error('Failed to fetch Deals Google Sheet');
-    
-    const csvText = await response.text();
+    let csvText;
+    try {
+      csvText = await fetchWithCache(GOOGLE_SHEET_DEALS_CSV_URL, 'deals_data_cache');
+    } catch (err) {
+      throw new Error(`Failed to fetch Deals Google Sheet: ${err.message}`);
+    }
     const rows = csvText.split('\n');
     const deals = [];
     
@@ -234,20 +259,20 @@ export async function fetchDealsData() {
       const parts = parseCSVLine(rowStr);
       if (parts.length < 4) continue;
       
-      const title = parts[0];
-      const desc = parts[1];
+      const title = escapeHTML(parts[0]);
+      const desc = escapeHTML(parts[1]);
       let originalPrice = '';
       let price = '';
       let imageUrl = null;
       
       // If user provided 4 columns: Title, Desc, Deal Price, Image URL
       if (parts.length === 4) {
-        price = parts[2];
+        price = escapeHTML(parts[2]);
         imageUrl = parts[3].trim() ? parts[3].trim() : null;
       } else {
         // If user provided 5 columns: Title, Desc, Original Price, Deal Price, Image URL
-        originalPrice = parts[2];
-        price = parts[3];
+        originalPrice = escapeHTML(parts[2]);
+        price = escapeHTML(parts[3]);
         imageUrl = parts.length > 4 && parts[4].trim() ? parts[4].trim() : null;
       }
       
@@ -285,19 +310,11 @@ export async function fetchStoreData() {
   }
 
   try {
-    const timestamp = new Date().getTime();
-    const fetchUrl = `${GOOGLE_SHEET_CSV_URL}&t=${timestamp}`;
-    console.log('[FetchStoreData] Fetching from:', fetchUrl);
-
-    const response = await fetch(fetchUrl, { cache: 'no-store' });
-    if (!response.ok) throw new Error('Failed to fetch Google Sheet');
-
-    const contentType = response.headers.get('content-type') || '';
-    const csvText = await response.text();
-
-    // Google sometimes returns HTML (not CSV) if the URL is wrong.
-    if (contentType.includes('text/html') || csvText.trim().startsWith('<')) {
-      throw new Error(`Google Sheet did not return CSV (content-type: ${contentType})`);
+    let csvText;
+    try {
+      csvText = await fetchWithCache(GOOGLE_SHEET_CSV_URL, 'store_info_cache');
+    } catch (err) {
+      throw new Error(`Failed to fetch General Info Google Sheet: ${err.message}`);
     }
 
     console.log('[FetchStoreData] Raw CSV received:', csvText.substring(0, 200));
@@ -460,12 +477,12 @@ export async function fetchStoreProductsData() {
   if (!GOOGLE_SHEET_STORE_PRODUCTS_CSV_URL) return fallbackProducts;
 
   try {
-    const timestamp = new Date().getTime();
-    const fetchUrl = `${GOOGLE_SHEET_STORE_PRODUCTS_CSV_URL}&t=${timestamp}`;
-    const response = await fetch(fetchUrl, { cache: 'no-store' });
-    if (!response.ok) throw new Error('Failed to fetch Store Products Google Sheet');
-    
-    const csvText = await response.text();
+    let csvText;
+    try {
+      csvText = await fetchWithCache(GOOGLE_SHEET_STORE_PRODUCTS_CSV_URL, 'store_products_data_cache');
+    } catch (err) {
+      throw new Error(`Failed to fetch Store Products Google Sheet: ${err.message}`);
+    }
     const rows = csvText.split('\n');
     const productsMap = new Map();
     
@@ -476,9 +493,9 @@ export async function fetchStoreProductsData() {
       const parts = parseCSVLine(rowStr);
       if (parts.length < 3) continue;
       
-      const name = parts[0].trim();
-      const flavour = parts[1].trim();
-      let price = parts[2].trim();
+      const name = escapeHTML(parts[0].trim());
+      const flavour = escapeHTML(parts[1].trim());
+      let price = escapeHTML(parts[2].trim());
       let imageUrl = parts.length > 3 && parts[3].trim() ? parts[3].trim() : null;
       
       if (name.toLowerCase() === 'name' || name === '') continue;

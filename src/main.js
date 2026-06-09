@@ -44,9 +44,74 @@ function initTheme() {
   });
 }
 
+function parseStoreStatus(hoursStr) {
+  if (!hoursStr) return null;
+  const s = hoursStr.toLowerCase();
+  if (s.includes('24 hour') || s.includes('24/7') || s.includes('open 24')) return true;
+
+  const timeRegex = /(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/ig;
+  const matches = [...s.matchAll(timeRegex)];
+  
+  if (matches.length >= 2) {
+    const parseTime = (match) => {
+      let h = parseInt(match[1], 10);
+      const m = parseInt(match[2] || '0', 10);
+      const ampm = (match[3] || '').toLowerCase();
+      if (ampm === 'pm' && h < 12) h += 12;
+      if (ampm === 'am' && h === 12) h = 0;
+      return h * 60 + m;
+    };
+    
+    const startMins = parseTime(matches[0]);
+    const endMins = parseTime(matches[1]);
+    
+    try {
+      const formatter = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', hour: 'numeric', minute: 'numeric', hour12: false });
+      const parts = formatter.formatToParts(new Date());
+      const currentH = parseInt(parts.find(p => p.type === 'hour').value, 10);
+      const currentM = parseInt(parts.find(p => p.type === 'minute').value, 10);
+      const currentMins = currentH * 60 + currentM;
+      
+      if (startMins < endMins) {
+        return currentMins >= startMins && currentMins < endMins;
+      } else {
+        return currentMins >= startMins || currentMins < endMins;
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+  return null;
+}
+
+function updateStoreStatusBadge(hoursStr) {
+  if (!hoursStr) return;
+  const headerDiv = document.querySelector('header .flex.items-center.space-x-4');
+  if (!headerDiv) return;
+  
+  let badge = document.getElementById('store-status-badge');
+  if (!badge) {
+    badge = document.createElement('div');
+    badge.id = 'store-status-badge';
+    headerDiv.insertBefore(badge, headerDiv.firstChild);
+  }
+
+  const isOpen = parseStoreStatus(hoursStr);
+  if (isOpen === true) {
+    badge.innerHTML = '<span class="flex items-center gap-1.5 bg-green-900/40 text-green-400 border border-green-500/30 px-3 py-1 rounded-full font-bold text-xs shadow-sm"><div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div> OPEN</span>';
+  } else if (isOpen === false) {
+    badge.innerHTML = '<span class="flex items-center gap-1.5 bg-red-900/40 text-red-400 border border-red-500/30 px-3 py-1 rounded-full font-bold text-xs shadow-sm"><div class="w-2 h-2 rounded-full bg-red-500"></div> CLOSED</span>';
+  } else {
+    badge.innerHTML = `<span class="hidden md:inline-block text-xs text-slate-400 font-medium whitespace-nowrap">Hours: ${hoursStr}</span>`;
+  }
+}
+
 function setupActionButtons(data) {
   const address = '14255 AL-69, Joppa, AL 35087';
   const phone = data?.phone || '';
+  const hours = data?.hours || '';
+
+  if (hours) updateStoreStatusBadge(hours);
 
   document.querySelectorAll('[data-action="route"]').forEach((btn) => {
     btn.href = `https://maps.google.com/?q=${encodeURIComponent(address)}`;
@@ -340,11 +405,11 @@ async function initApp() {
   // Weather widget (home page)
   fetchWeather();
 
-  // Set up 30 second polling
+  // Set up 5 minute polling
   setInterval(() => {
-    console.log('[Main] Auto-refreshing data from Google Sheets (30s interval)...');
+    console.log('[Main] Auto-refreshing data from Google Sheets (5m interval)...');
     loadAllData(false);
-  }, 30000);
+  }, 300000);
 
   console.log('[Main] Application initialization complete');
 }
@@ -380,11 +445,14 @@ function renderDealsItems(deals) {
 
 document.addEventListener('DOMContentLoaded', initApp);
 
-// Register Service Worker for background syncing
-// Disabled by default because the project currently has no verified /src/serviceWorker.js
-// and the previous error indicates the request returns HTML instead of JS.
-// If you add src/serviceWorker.js, re-enable this block.
+// Register Service Worker for background syncing and PWA offline capabilities
 if ('serviceWorker' in navigator) {
-  // no-op
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then(registration => {
+      console.log('ServiceWorker registration successful with scope: ', registration.scope);
+    }, err => {
+      console.log('ServiceWorker registration failed: ', err);
+    });
+  });
 }
 
