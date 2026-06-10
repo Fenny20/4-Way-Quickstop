@@ -407,10 +407,14 @@ function showOfflineBanner(show) {
   }
 }
 
+function getStoreTime() {
+  return new Date(new Date().toLocaleString("en-US", {timeZone: "America/Chicago"}));
+}
+
 function initHero() {
   const heroImg = document.querySelector('.animate-slow-zoom');
   if (!heroImg) return;
-  const hour = new Date().getHours();
+  const hour = getStoreTime().getHours();
   if (hour >= 5 && hour < 12) {
     heroImg.src = '/images/hero_morning.png';
   } else if (hour >= 12 && hour < 19) {
@@ -420,8 +424,26 @@ function initHero() {
   }
 }
 
+function startStoreClock() {
+  const timeEl = document.getElementById('store-time');
+  if (!timeEl) return;
+  
+  const updateTime = () => {
+    const storeDate = getStoreTime();
+    let h = storeDate.getHours();
+    const m = storeDate.getMinutes().toString().padStart(2, '0');
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    timeEl.textContent = `${h}:${m} ${ampm}`;
+  };
+  
+  updateTime();
+  setInterval(updateTime, 1000);
+}
+
 async function initApp() {
   initHero();
+  startStoreClock();
   window.addEventListener('offline', () => showOfflineBanner(true));
   window.addEventListener('online', () => showOfflineBanner(false));
   if (!navigator.onLine) showOfflineBanner(true);
