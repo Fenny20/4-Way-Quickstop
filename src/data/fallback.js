@@ -9,6 +9,11 @@ export const fallbackData = {
     "premium": "3.84",
     "diesel": "3.99"
   },
+  "fuelList": [
+    { "id": "regular", "price": "3.39", "status": "In Stock" },
+    { "id": "premium", "price": "3.84", "status": "In Stock" },
+    { "id": "diesel", "price": "3.99", "status": "In Stock" }
+  ],
   "food1": {
     "title": "Breakfast Sandwich Combo",
     "desc": "Fresh eggs, bacon or sausage on toasted biscuits. Served with a side of hash browns.",
