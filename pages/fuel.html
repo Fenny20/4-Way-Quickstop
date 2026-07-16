@@ -17,11 +17,20 @@
     <meta property="og:type" content="website">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#f97316">
-</head>
+
+    <!-- Prevent Theme Flicker -->
+    <script>
+      if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    </script>
+  </head>
   <body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-sans antialiased transition-colors duration-300 pb-16 md:pb-0">
 
     <!-- Announcement Bar (Hidden by default) -->
-    <div id="announcement-bar" class="hidden bg-orange-500 text-white px-4 py-2 text-center text-sm font-bold shadow-md relative z-50 animate-fade-in-up">
+    <div id="announcement-bar" class="hidden bg-orange-500 text-white px-4 py-2 text-center text-sm font-bold shadow-md relative z-50 reveal-on-scroll">
       <span data-bind="announcement"></span>
     </div>
 
@@ -61,12 +70,12 @@
     <!-- Component C: Live Fuel Rates Matrix -->
     <section id="fuel" class="py-20 bg-slate-900 min-h-[calc(100vh-200px)]">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16 animate-fade-in-up">
+        <div class="text-center mb-16 reveal-on-scroll">
           <h2 class="text-4xl font-extrabold text-white tracking-tight mb-4">Current Fuel Services</h2>
           <p class="text-xl text-slate-400">Premium grades for all vehicle types.</p>
         </div>
         
-        <div id="fuel-container" class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto animate-fade-in-up" style="animation-delay: 0.2s">
+        <div id="fuel-container" class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto reveal-on-scroll" style="animation-delay: 0.2s">
           <!-- Dynamic fuel cards will be injected here -->
         </div>
       </div>
