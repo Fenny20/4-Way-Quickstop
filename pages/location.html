@@ -9,6 +9,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
   
     <!-- SEO & PWA -->
     <meta name="description" content="4-Way Quick Stop - Your express roadside stop for fuel, food, snacks, and great deals in Joppa, AL.">
@@ -26,6 +29,9 @@
         document.documentElement.classList.remove('dark');
       }
     </script>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   </head>
   <body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-sans antialiased transition-colors duration-300 pb-16 md:pb-0">
 
@@ -64,61 +70,90 @@
         </div>
       </div>
     </header>
+    
+    <!-- Component E: Location & Hours Parallax Section -->
+    <section id="location" class="relative py-20 min-h-[calc(100vh-100px)] flex items-center overflow-hidden">
+      <!-- Parallax Aerial Background -->
+      <div class="absolute inset-0 z-0 pointer-events-none">
+        <div class="w-full h-full bg-fixed bg-cover bg-center" style="background-image: url('/images/location_bg.png');"></div>
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px]"></div>
+      </div>
+
+      <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div class="text-center mb-12 reveal-on-scroll">
+          <h2 class="text-5xl md:text-6xl font-extrabold tracking-tight text-white mb-4 drop-shadow-md">Visit Us Today</h2>
+          <p class="text-xl text-slate-300 font-medium">Your premium oasis on the road.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch reveal-on-scroll" style="animation-delay: 0.2s;">
+          <!-- Glassmorphism Info Card -->
+          <div class="bg-slate-900/40 dark:bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl flex flex-col justify-center">
+            
+            <div class="mb-10">
+              <div class="flex items-center mb-3">
+                <div class="bg-orange-500/20 p-2 rounded-lg mr-4">
+                  <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                </div>
+                <h3 class="text-sm font-bold text-orange-400 uppercase tracking-wider">Location</h3>
+              </div>
+              <p class="text-3xl font-bold leading-tight text-white drop-shadow-sm" data-bind="address">...</p>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              <div class="bg-white/5 rounded-2xl p-6 border border-white/5">
+                <div class="flex items-center mb-2">
+                  <svg class="w-5 h-5 text-sky-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <h3 class="text-sm font-bold text-sky-400 uppercase tracking-wider">Store Hours</h3>
+                </div>
+                <p class="text-2xl font-semibold text-white" data-bind="storeHours">...</p>
+              </div>
+              <div class="bg-white/5 rounded-2xl p-6 border border-white/5">
+                <div class="flex items-center mb-2">
+                  <svg class="w-5 h-5 text-pink-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                  <h3 class="text-sm font-bold text-pink-400 uppercase tracking-wider">Kitchen Hours</h3>
+                </div>
+                <p class="text-2xl font-semibold text-white" data-bind="foodHours">...</p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Interactive Map Container -->
+          <div class="bg-slate-900/40 dark:bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-4 shadow-2xl overflow-hidden h-[400px] lg:h-auto">
+            <div id="interactive-map" class="w-full h-full rounded-2xl z-0 filter contrast-[1.1] brightness-[0.9]"></div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Amenities Section -->
-    <section class="py-12 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+    <section class="py-20 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h3 class="text-2xl font-bold text-slate-900 dark:text-white text-center mb-8">Traveler Amenities</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <div class="p-4">
-            <div class="text-4xl mb-3">🚻</div>
-            <h4 class="font-bold text-slate-800 dark:text-slate-200">Ultra-Clean Restrooms</h4>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Checked hourly</p>
+        <h3 class="text-3xl font-bold text-slate-900 dark:text-white text-center mb-12 reveal-on-scroll">Traveler Amenities</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div class="p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 transition-all hover:-translate-y-2 hover:shadow-xl hover:border-orange-500/50 reveal-on-scroll group" style="animation-delay: 0.1s;">
+            <div class="text-5xl mb-4 transform transition-transform group-hover:scale-110">🚻</div>
+            <h4 class="font-bold text-lg text-slate-800 dark:text-slate-200">Clean Restrooms</h4>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Checked hourly</p>
           </div>
-          <div class="p-4">
-            <div class="text-4xl mb-3">☕</div>
-            <h4 class="font-bold text-slate-800 dark:text-slate-200">24/7 Fresh Coffee</h4>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Brewed continuously</p>
+          <div class="p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 transition-all hover:-translate-y-2 hover:shadow-xl hover:border-orange-500/50 reveal-on-scroll group" style="animation-delay: 0.2s;">
+            <div class="text-5xl mb-4 transform transition-transform group-hover:scale-110">☕</div>
+            <h4 class="font-bold text-lg text-slate-800 dark:text-slate-200">24/7 Fresh Coffee</h4>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Brewed continuously</p>
           </div>
-          <div class="p-4">
-            <div class="text-4xl mb-3">🏧</div>
-            <h4 class="font-bold text-slate-800 dark:text-slate-200">On-Site ATM</h4>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Safe and secure</p>
+          <div class="p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 transition-all hover:-translate-y-2 hover:shadow-xl hover:border-orange-500/50 reveal-on-scroll group" style="animation-delay: 0.3s;">
+            <div class="text-5xl mb-4 transform transition-transform group-hover:scale-110">🏧</div>
+            <h4 class="font-bold text-lg text-slate-800 dark:text-slate-200">On-Site ATM</h4>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Safe and secure</p>
           </div>
-          <div class="p-4">
-            <div class="text-4xl mb-3">🧊</div>
-            <h4 class="font-bold text-slate-800 dark:text-slate-200">Propane & Ice</h4>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Fully stocked</p>
+          <div class="p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 transition-all hover:-translate-y-2 hover:shadow-xl hover:border-orange-500/50 reveal-on-scroll group" style="animation-delay: 0.4s;">
+            <div class="text-5xl mb-4 transform transition-transform group-hover:scale-110">🧊</div>
+            <h4 class="font-bold text-lg text-slate-800 dark:text-slate-200">Propane & Ice</h4>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Fully stocked</p>
           </div>
         </div>
       </div>
     </section>
-
-    <!-- Component E: Location & Hours -->
-    <section id="location" class="py-16 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 min-h-[calc(100vh-200px)]">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <h2 class="text-3xl font-extrabold tracking-tight mb-8 text-orange-500">Visit Us Today</h2>
-            <div class="mb-8">
-              <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">Location</h3>
-              <p class="text-2xl font-bold leading-tight" data-bind="address">...</p>
-            </div>
-            <div class="grid grid-cols-2 gap-6 mb-8">
-              <div>
-                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">Store Hours</h3>
-                <p class="text-xl font-semibold" data-bind="storeHours">...</p>
-              </div>
-              <div>
-                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">Kitchen Hours</h3>
-                <p class="text-xl font-semibold" data-bind="foodHours">...</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
 
     <footer class="bg-slate-900 pt-12 pb-8 border-t border-slate-800">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
