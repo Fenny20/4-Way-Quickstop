@@ -398,18 +398,22 @@ function renderFuelItems(storeData) {
   }
 
   container.innerHTML = storeData.fuelList.map((fuel) => {
-    let colorClass = 'text-green-400';
+    let colorClass = 'text-green-600 dark:text-green-400';
     let label = '87 Octane';
     let extraHTML = '';
     let containerClasses = 'glass-panel rounded-2xl p-8 text-center transition-transform transform hover:-translate-y-2 hover:shadow-2xl relative';
+    let titleColorClass = 'text-slate-800 dark:text-slate-300';
+    let labelColorClass = 'text-slate-500 dark:text-slate-400';
 
     if (fuel.id.toLowerCase() === 'premium') {
       colorClass = 'text-orange-500';
       label = '93 Octane';
       containerClasses = 'bg-gradient-to-b from-slate-800 to-slate-900 rounded-2xl p-8 border border-orange-500/50 text-center shadow-[0_0_20px_rgba(249,115,22,0.15)] transition-transform transform md:-translate-y-4 hover:-translate-y-6 hover:shadow-[0_0_30px_rgba(249,115,22,0.3)] relative';
       extraHTML = `<div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-orange-600 text-white px-6 py-1.5 rounded-full text-sm font-bold uppercase tracking-widest shadow-lg">Top Tier</div>`;
+      titleColorClass = 'text-white mt-4';
+      labelColorClass = 'text-slate-400';
     } else if (fuel.id.toLowerCase() === 'diesel') {
-      colorClass = 'text-blue-400';
+      colorClass = 'text-blue-600 dark:text-blue-400';
       label = 'Ultra-Low Sulfur';
     } else if (fuel.id.toLowerCase() === 'regular') {
       label = '87 Octane';
@@ -422,19 +426,18 @@ function renderFuelItems(storeData) {
     
     let stockBadgeHTML = '';
     if (isOutOfStock) {
-      colorClass = 'text-slate-500 line-through';
+      colorClass = 'text-slate-400 dark:text-slate-500 line-through';
       extraHTML += `<div class="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none z-10"><div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm flex flex-col items-center justify-center"><span class="text-3xl font-extrabold text-red-500 tracking-widest uppercase border-4 border-red-500 p-2 rounded-xl -rotate-12 bg-slate-900 shadow-2xl">Out of Stock</span></div></div>`;
     } else if (statusText) {
-      // If user typed something like "stock" or "in stock", we render a nice green badge!
       const displayStatus = statusText.toLowerCase() === 'stock' ? 'In Stock' : statusText;
-      stockBadgeHTML = `<div class="mt-4"><span class="inline-block bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-green-500/30">${displayStatus}</span></div>`;
+      stockBadgeHTML = `<div class="mt-4"><span class="inline-block bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-green-500/30">${displayStatus}</span></div>`;
     }
 
     return `
       <div class="${containerClasses}">
         ${extraHTML}
-        <h3 class="text-2xl font-bold text-slate-300 uppercase tracking-wide mb-2 ${fuel.id.toLowerCase() === 'premium' ? 'mt-4 text-white' : ''}">${fuel.id}</h3>
-        <p class="text-sm text-slate-500 mb-6 uppercase tracking-widest font-semibold">${label}</p>
+        <h3 class="text-2xl font-bold ${titleColorClass} uppercase tracking-wide mb-2">${fuel.id}</h3>
+        <p class="text-sm ${labelColorClass} mb-6 uppercase tracking-widest font-semibold">${label}</p>
         <div class="text-6xl font-extrabold ${colorClass}">${fuel.price}</div>
         ${stockBadgeHTML}
       </div>
