@@ -26,6 +26,9 @@
         document.documentElement.classList.remove('dark');
       }
     </script>
+    
+    <!-- Vanilla Tilt for 3D Cards -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
   </head>
   <body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-sans antialiased transition-colors duration-300 pb-16 md:pb-0">
 
@@ -70,10 +73,11 @@
     <!-- Component D: Convenience Store Directory -->
     <section id="store" class="relative py-20 bg-slate-50 dark:bg-slate-900 min-h-[calc(100vh-200px)] overflow-hidden">
       
-      <!-- Eye-Catching Animated Background Blobs -->
-      <div class="absolute top-0 -left-4 w-72 h-72 bg-orange-400/30 dark:bg-orange-600/20 rounded-full mix-blend-multiply dark:mix-blend-lighten filter blur-3xl opacity-70 animate-blob pointer-events-none z-0"></div>
-      <div class="absolute top-0 -right-4 w-72 h-72 bg-sky-400/30 dark:bg-sky-600/20 rounded-full mix-blend-multiply dark:mix-blend-lighten filter blur-3xl opacity-70 animate-blob animation-delay-2000 pointer-events-none z-0"></div>
-      <div class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-400/30 dark:bg-pink-600/20 rounded-full mix-blend-multiply dark:mix-blend-lighten filter blur-3xl opacity-70 animate-blob animation-delay-4000 pointer-events-none z-0"></div>
+      <!-- Parallax Background Image -->
+      <div class="absolute inset-0 z-0 pointer-events-none">
+        <div class="w-full h-full bg-fixed bg-cover bg-center" style="background-image: url('/images/store_bg.png');"></div>
+        <div class="absolute inset-0 bg-slate-50/50 dark:bg-slate-900/50 backdrop-blur-sm"></div>
+      </div>
 
       <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16 reveal-on-scroll">
