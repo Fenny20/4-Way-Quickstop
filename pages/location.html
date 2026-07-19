@@ -87,41 +87,49 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch reveal-on-scroll" style="animation-delay: 0.2s;">
           <!-- Glassmorphism Info Card -->
-          <div class="bg-slate-900/40 dark:bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl flex flex-col justify-center">
+          <div class="bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl border border-white/20 rounded-3xl p-8 shadow-2xl flex flex-col justify-center transition-colors duration-300">
             
             <div class="mb-10">
               <div class="flex items-center mb-3">
-                <div class="bg-orange-500/20 p-2 rounded-lg mr-4">
-                  <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <div class="bg-orange-500 p-2 rounded-lg mr-4 shadow-lg shadow-orange-500/30">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 </div>
-                <h3 class="text-sm font-bold text-orange-400 uppercase tracking-wider">Location</h3>
+                <h3 class="text-sm font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest transition-colors duration-300">Location</h3>
               </div>
-              <p class="text-3xl font-bold leading-tight text-white drop-shadow-sm" data-bind="address">...</p>
+              <p class="text-3xl font-extrabold leading-tight text-slate-900 dark:text-white drop-shadow-md transition-colors duration-300" data-bind="address">...</p>
             </div>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
-              <div class="bg-white/5 rounded-2xl p-6 border border-white/5">
+              <div class="bg-white/40 dark:bg-white/10 rounded-2xl p-6 border border-white/40 dark:border-white/10 shadow-inner transition-colors duration-300">
                 <div class="flex items-center mb-2">
-                  <svg class="w-5 h-5 text-sky-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                  <h3 class="text-sm font-bold text-sky-400 uppercase tracking-wider">Store Hours</h3>
+                  <svg class="w-5 h-5 text-sky-600 dark:text-sky-400 mr-2 drop-shadow-sm transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <h3 class="text-sm font-bold text-sky-700 dark:text-sky-300 uppercase tracking-widest drop-shadow-sm transition-colors duration-300">Store Hours</h3>
                 </div>
-                <p class="text-2xl font-semibold text-white" data-bind="storeHours">...</p>
+                <p class="text-2xl font-bold text-slate-900 dark:text-white drop-shadow-sm transition-colors duration-300" data-bind="storeHours">...</p>
               </div>
-              <div class="bg-white/5 rounded-2xl p-6 border border-white/5">
+              <div class="bg-white/40 dark:bg-white/10 rounded-2xl p-6 border border-white/40 dark:border-white/10 shadow-inner transition-colors duration-300">
                 <div class="flex items-center mb-2">
-                  <svg class="w-5 h-5 text-pink-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                  <h3 class="text-sm font-bold text-pink-400 uppercase tracking-wider">Kitchen Hours</h3>
+                  <svg class="w-5 h-5 text-pink-600 dark:text-pink-400 mr-2 drop-shadow-sm transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                  <h3 class="text-sm font-bold text-pink-700 dark:text-pink-300 uppercase tracking-widest drop-shadow-sm transition-colors duration-300">Kitchen Hours</h3>
                 </div>
-                <p class="text-2xl font-semibold text-white" data-bind="foodHours">...</p>
+                <p class="text-2xl font-bold text-slate-900 dark:text-white drop-shadow-sm transition-colors duration-300" data-bind="foodHours">...</p>
               </div>
             </div>
 
           </div>
 
           <!-- Interactive Map Container -->
-          <div class="bg-slate-900/40 dark:bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-4 shadow-2xl overflow-hidden h-[400px] lg:h-auto">
-            <div id="interactive-map" class="w-full h-full rounded-2xl z-0"></div>
-          </div>
+          <a href="https://maps.google.com/?q=14255+AL-69,+Joppa,+AL+35087,+USA" target="_blank" rel="noopener noreferrer" class="block bg-slate-900/70 backdrop-blur-2xl border border-white/20 rounded-3xl p-4 shadow-2xl overflow-hidden h-[400px] lg:h-auto relative group transition-transform hover:-translate-y-1 hover:shadow-orange-500/20">
+            <div id="interactive-map" class="w-full h-full rounded-2xl z-0 pointer-events-none"></div>
+            
+            <!-- Hover Overlay for Map -->
+            <div class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl backdrop-blur-sm">
+              <div class="bg-orange-500 text-white p-4 rounded-full shadow-2xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+              </div>
+              <span class="mt-4 font-bold text-xl text-white tracking-wide shadow-black drop-shadow-lg">Open in Google Maps</span>
+            </div>
+          </a>
         </div>
       </div>
     </section>
