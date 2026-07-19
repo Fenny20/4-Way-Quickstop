@@ -139,7 +139,7 @@ function renderFoodItems(foodItems, filterCategory = 'all', searchQuery = '') {
     
     renderedCount++;
 
-    let priceHtml = `<span class="font-extrabold text-3xl text-orange-600">${item.price}</span>`;
+    let priceHtml = `<span class="font-extrabold text-3xl text-orange-400 drop-shadow-sm">${item.price}</span>`;
     
     if (item.options && item.options.length > 0) {
       let optionsHtml = item.options.map(opt => `<option value="${opt.price}">${opt.name}</option>`).join('');
@@ -148,30 +148,30 @@ function renderFoodItems(foodItems, filterCategory = 'all', searchQuery = '') {
           <div class="relative custom-dropdown-container">
             <button 
               type="button" 
-              class="custom-dropdown-btn flex items-center justify-between min-w-[120px] bg-slate-100 dark:bg-slate-700/50 text-slate-800 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-1.5 text-sm font-semibold focus:ring-2 focus:ring-orange-500 outline-none cursor-pointer shadow-sm transition-colors backdrop-blur-md"
+              class="custom-dropdown-btn flex items-center justify-between min-w-[120px] bg-white/20 text-white border border-white/20 rounded-lg px-3 py-1.5 text-sm font-semibold focus:ring-2 focus:ring-orange-500 outline-none cursor-pointer shadow-sm transition-colors backdrop-blur-md hover:bg-white/30"
             >
               <span class="dropdown-selected-text">${item.options[0].name}</span>
               <svg class="w-4 h-4 ml-2 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
             </button>
-            <div class="custom-dropdown-menu absolute z-50 mt-2 w-full bg-white/95 dark:bg-slate-800/95 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl backdrop-blur-xl overflow-hidden">
-              ${item.options.map(opt => `<div class="dropdown-item px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-orange-50 dark:hover:bg-slate-700 cursor-pointer transition-colors" data-price="${opt.price}" data-target="price-${index}">${opt.name}</div>`).join('')}
+            <div class="custom-dropdown-menu absolute z-50 mt-2 w-full bg-slate-800/95 border border-white/20 rounded-lg shadow-xl backdrop-blur-xl overflow-hidden hidden">
+              ${item.options.map(opt => `<div class="dropdown-item px-3 py-2 text-sm font-semibold text-white hover:bg-orange-500 hover:text-white cursor-pointer transition-colors" data-price="${opt.price}" data-target="price-${index}">${opt.name}</div>`).join('')}
             </div>
           </div>
-          <span id="price-${index}" class="font-extrabold text-3xl text-orange-600">${item.options[0].price}</span>
+          <span id="price-${index}" class="font-extrabold text-3xl text-orange-400 drop-shadow-sm">${item.options[0].price}</span>
         </div>
       `;
     }
 
     const imgSrc = item.imageUrl ? item.imageUrl : images[index % images.length];
     const cardHtml = `
-      <div class="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-lg border border-slate-100 dark:border-slate-700 flex flex-col transition-all transform hover:-translate-y-2 hover:shadow-2xl reveal-on-scroll" style="transition-delay: ${renderedCount * 0.05}s">
+      <div class="bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden shadow-lg border border-white/20 flex flex-col transition-all duration-300 transform hover:-translate-y-2 hover:shadow-orange-500/30 hover:border-orange-500/50 group reveal-on-scroll" style="transition-delay: ${renderedCount * 0.05}s">
         <div class="h-56 overflow-hidden relative">
-          <img src="${imgSrc}" alt="${item.title}" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110" onerror="this.src='/images/burger.png'" />
+          <img src="${imgSrc}" alt="${item.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" onerror="this.src='/images/burger.png'" />
         </div>
         <div class="p-6 flex-grow flex flex-col">
-          <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">${item.title}</h3>
-          <p class="text-slate-600 dark:text-slate-300 mb-6 flex-grow leading-relaxed">${item.desc}</p>
-          <div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center">
+          <h3 class="text-2xl font-bold text-white mb-2 tracking-tight drop-shadow-sm">${item.title}</h3>
+          <p class="text-white/80 mb-6 flex-grow leading-relaxed">${item.desc}</p>
+          <div class="mt-auto pt-4 border-t border-white/10 flex justify-between items-center">
             ${priceHtml}
           </div>
         </div>
@@ -637,18 +637,18 @@ function renderDealsItems(deals) {
   deals.forEach((deal, index) => {
     const imgSrc = deal.imageUrl || '/images/tenders.png'; // Fallback
     const cardHtml = `
-      <div class="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-lg border border-slate-100 dark:border-slate-700 flex flex-col transition-all transform hover:-translate-y-2 hover:shadow-2xl reveal-on-scroll" style="transition-delay: ${index * 0.1}s">
+      <div class="bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden shadow-lg border border-white/20 flex flex-col transition-all duration-300 transform hover:-translate-y-2 hover:shadow-orange-500/30 hover:border-orange-500/50 group reveal-on-scroll" style="transition-delay: ${index * 0.1}s">
         <div class="h-56 overflow-hidden relative group">
           <img src="${imgSrc}" alt="${deal.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" onerror="this.src='/images/sandwich.png'" />
-          <div class="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-full font-bold shadow-md animate-pulse">HOT DEAL</div>
+          <div class="absolute top-4 left-4 bg-orange-600 text-white px-3 py-1 rounded-full font-bold shadow-md animate-pulse">HOT DEAL</div>
         </div>
         <div class="p-6 flex-grow flex flex-col">
-          <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">${deal.title}</h3>
-          <p class="text-slate-600 dark:text-slate-300 mb-6 flex-grow leading-relaxed">${deal.desc}</p>
-          <div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center">
+          <h3 class="text-2xl font-bold text-white mb-2 tracking-tight drop-shadow-sm">${deal.title}</h3>
+          <p class="text-white/80 mb-6 flex-grow leading-relaxed">${deal.desc}</p>
+          <div class="mt-auto pt-4 border-t border-white/10 flex justify-between items-center">
             <div>
-              <span class="text-sm text-slate-400 line-through mr-2">${deal.originalPrice}</span>
-              <span class="font-extrabold text-3xl text-orange-600">${deal.price}</span>
+              <span class="text-sm text-white/50 line-through mr-2">${deal.originalPrice}</span>
+              <span class="font-extrabold text-3xl text-orange-400 drop-shadow-sm">${deal.price}</span>
             </div>
           </div>
         </div>
