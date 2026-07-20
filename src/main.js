@@ -1,5 +1,6 @@
 import './style.css';
 import { fetchStoreData, populateDOM, fetchFoodData, debugGoogleSheets } from './utils/dataFetcher.js';
+import { initRouter } from './router.js';
 
 // Theme Toggle Logic
 function initTheme() {
@@ -555,11 +556,14 @@ function startStoreClock() {
   setInterval(updateTime, 1000);
 }
 
-async function initApp() {
+export async function initApp(isInitial = true) {
   initHero();
   startStoreClock();
-  window.addEventListener('offline', () => showOfflineBanner(true));
-  window.addEventListener('online', () => showOfflineBanner(false));
+  
+  if (isInitial) {
+    window.addEventListener('offline', () => showOfflineBanner(true));
+    window.addEventListener('online', () => showOfflineBanner(false));
+  }
   if (!navigator.onLine) showOfflineBanner(true);
 
   console.log('[Main] Initializing application...');
@@ -573,7 +577,7 @@ async function initApp() {
   console.log('[Main] App Debug Tools Available - Call window.debugApp.testGoogleSheets() to test Google Sheets');
 
   // Load all data immediately
-  await loadAllData(true);
+  await loadAllData(isInitial);
 
   // Weather widget (home page)
   fetchWeather();
@@ -581,11 +585,17 @@ async function initApp() {
   // Initialize interactive map if container exists (Location page)
   initLocationMap();
 
-  // Set up 5 minute polling
-  setInterval(() => {
-    console.log('[Main] Auto-refreshing data from Google Sheets (5m interval)...');
-    loadAllData(false);
-  }, 300000);
+  if (isInitial) {
+    // Set up 5 minute polling
+    setInterval(() => {
+      console.log('[Main] Auto-refreshing data from Google Sheets (5m interval)...');
+      loadAllData(false);
+    }, 300000);
+  }
+
+  // Ensure scroll animations and buttons re-initialize
+  window.initScrollAnimations();
+  window.initMagneticButtons();
 
   console.log('[Main] Application initialization complete');
 }
@@ -731,9 +741,8 @@ function initCustomDropdowns() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  initApp();
-  window.initScrollAnimations();
-  window.initMagneticButtons();
+  initApp(true);
+  initRouter(initApp);
   initCustomDropdowns();
 });
 
