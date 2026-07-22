@@ -20,9 +20,12 @@ export function escapeHTML(str) {
     .replace(/'/g, '&#039;');
 }
 
-export async function fetchWithCache(url, cacheKey, ttlMs = 300000) {
+const urlParams = new URLSearchParams(window.location.search);
+const forceRefresh = urlParams.has('refresh');
+
+export async function fetchWithCache(url, cacheKey, ttlMs = 120000) {
   const cached = localStorage.getItem(cacheKey);
-  if (cached) {
+  if (cached && !forceRefresh) {
     try {
       const parsed = JSON.parse(cached);
       if (Date.now() - parsed.timestamp < ttlMs) {
